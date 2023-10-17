@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-const int MOD = 10000007;
+const int MOD = 1000000007;
 
 long long power(long long a, long long n) {
     long long res = 1;
