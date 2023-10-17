@@ -1,2 +1,2 @@
 # School
- All my problems from school lessons and additionals classes
+ All my C++ problems from school lessons and additionals classes
