@@ -1,0 +1,45 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+const int MAXN = 100002;
+
+vector<int> graph[MAXN];
+bool visited[MAXN];
+
+void dfs(int v) {
+    visited[v] = true;
+    for (int u : graph[v]) {
+        if (!visited[u]) {
+            dfs(u);
+        }
+    }
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int n, m;
+    cin >> n >> m;
+
+    for (int i = 0; i < m; i++) {
+        int a, b;
+        cin >> a >> b;
+        graph[a].push_back(b);
+        graph[b].push_back(a);
+    }
+
+    dfs(1);
+
+    for (int i = 1; i <= n; i++) {
+        if (visited[i]) {
+            cout << "TAK\n";
+        } else {
+            cout << "NIE\n";
+        }
+    }
+
+    return 0;
+}
