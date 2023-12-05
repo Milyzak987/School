@@ -7,7 +7,7 @@ vector<pair<int, int>> graph[500002];
 vector<long long> dist(500002, -1);
 
 void dijkstra(int s) {
-    priority_queue <pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    priority_queue<pair<int, int>> pq;
     dist[s] = 0;
     pq.push(make_pair(0, s));
     while (!pq.empty()) {
