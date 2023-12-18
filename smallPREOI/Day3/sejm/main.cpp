@@ -1,19 +1,20 @@
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 #include "sejlib.h"
 using namespace std;
 
 int main() {
-    int i, num2;
-    vector<int> pos1 = {}, pos2 = {};
-    vector<pair<int, int>> pos = {};
+    int i;
+    vector<int> pos1, pos2;
+    vector<pair<int, int>> pos;
     int n = init();
 
-    num2 = wywiad(2, 1);
-    pos.push_back({num2, 2});
+    int num = wywiad(1, n);
+    int chk = wywiad(n, 1);
+    pos.push_back({chk, n});
 
-    for (int i = 3; i <= n; ++i) {
+    for (int i = 2; i < n; ++i) {
         pos.push_back({wywiad(i, 1), i});
     }
     sort(pos.begin(), pos.end());
@@ -30,18 +31,6 @@ int main() {
         }
     }
 
-    if (wywiad(1, n) == wywiad(2, n)) {
-        if (num2 == good)
-            pos1.push_back(1);
-        else
-            pos2.push_back(1);
-    } else {
-        if (num2 == good)
-            pos2.push_back(1);
-        else
-            pos1.push_back(1);
-    }
-
     for (auto u : pos) {
         if (u.first == good) {
             pos1.push_back(u.second);
@@ -50,11 +39,43 @@ int main() {
         }
     }
 
-    if (pos1.size() < pos2.size()) {
-        sort(pos1.begin(), pos1.end());
-        odpowiedz(pos1);
+    if (pos1.size() == pos2.size()) {
+        if (wywiad(1, n) == num) {
+            if (chk == good) {
+                sort(pos2.begin(), pos2.end());
+                odpowiedz(pos2);
+            } else {
+                sort(pos1.begin(), pos1.end());
+                odpowiedz(pos1);
+            }
+        } else {
+            if (chk != good) {
+                sort(pos2.begin(), pos2.end());
+                odpowiedz(pos2);
+            } else {
+                sort(pos1.begin(), pos1.end());
+                odpowiedz(pos1);
+            } 
+        }
     } else {
-        sort(pos2.begin(), pos2.end());
-        odpowiedz(pos2);
+        if (chk == good) {
+            if(num == wywiad(pos1[0], n)){
+                sort(pos2.begin(), pos2.end());
+                odpowiedz(pos2);
+            } else{
+                pos2.push_back(1);
+                sort(pos2.begin(), pos2.end());
+                odpowiedz(pos2);
+            }
+        } else {
+            if(num + 1 == wywiad(pos1[0], n)){
+                sort(pos2.begin(), pos2.end());
+                odpowiedz(pos2);
+            } else{
+                pos2.push_back(1);
+                sort(pos2.begin(), pos2.end());
+                odpowiedz(pos2);
+            }
+        }
     }
 }
