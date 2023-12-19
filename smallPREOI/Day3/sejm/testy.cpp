@@ -1,7 +1,4 @@
-#include <cstdlib>
-#include <ctime>
-#include <fstream>
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
 int randrange(int a, int b) {
@@ -9,29 +6,35 @@ int randrange(int a, int b) {
 }
 
 int main() {
-    for (int j = 1; j <= 100; j++) {
+    for (int j = 1; j <= 10000; j++) {
         srand(time(NULL) * j);
         string name = "testy/test" + to_string(j) + ".in";
 
         ofstream file(name);
 
-        int n = randrange(3, 20);
-
+        int n = randrange(3, 10);
         file << n << "\n";
 
-        int zeros = 0, ones = 0;
-        for (int i = 1; i < n; i++) {
-            int num = randrange(0, 1);
-            if(ones > zeros) num = 0;
-            zeros += (num == 0) ? 1 : 0;
-            ones += (num == 1) ? 1 : 0;
-            file << num << " ";
+        vector<int> nums(n);
+        int x = randrange(1, n - 1);
+        if (x == n / 2) x++;
+        if (x > n / 2) {
+            fill(nums.begin(), nums.begin() + x, 0);
+            fill(nums.begin() + x + 1, nums.end(), 1);
+        } else {
+            fill(nums.begin(), nums.begin() + x, 1);
+            fill(nums.begin() + x + 1, nums.end(), 0);
         }
-        if(ones + 1 >= zeros) file << 0;
-        else file << 1;
+
+        shuffle(nums.begin(), nums.end(), default_random_engine(time(NULL) * j));
+
+        for (int i = 0; i < n; i++) {
+            file << nums[i] << " ";
+            ;
+        }
         file << "\n";
         for (int i = 0; i < n; i++) {
-            file << randrange(1, 1000) << " ";
+            file << randrange(1, 10) << " ";
         }
         file.close();
     }
