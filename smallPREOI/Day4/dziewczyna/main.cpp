@@ -1,42 +1,62 @@
-#include <cstdlib>
 #include <iostream>
-#include <vector>
-
+#include <algorithm>
 using namespace std;
 
-constexpr int MAXN = 507;
+const long long MAXN = 1e6 + 7;
+const long long Pv = 127;
+const long long MOD = 1e9 + 7;
+long long P[MAXN], hash1[MAXN], hash2[MAXN];
 
-vector<vector<int>> board(MAXN, vector<int>(MAXN, 0));
-string s;
-
-bool czyOdwrotnosc(int start, int end) {
-    int len = end - start + 1;
-    for (int i = start; i < start + (len / 2); ++i) {
-        if (s[i] == s[end + start - i]) {
-            return false;
-        }
+void createHash(long long n, string str1, string str2) {
+    P[0] = 1;
+    for (long long i = 1; i <= n; i++) P[i] = (P[i - 1] * Pv) % MOD;
+    for (long long i = 1; i <= n; i++) {
+        hash1[i] = (hash1[i - 1] + P[i] * str1[i]) % MOD;
+        hash2[i] = (hash2[i - 1] + P[i] * str2[i]) % MOD;
     }
-    return true;
+}
+
+long long calHash1(long long left, long long right, long long n) {
+    long long result = (hash1[right] - hash1[left - 1] + MOD) % MOD;
+    return ((long long)result * P[n - left + 1]) % MOD;
+}
+
+long long CalHash2(long long left, long long right, long long n) {
+    long long result = (hash2[right] - hash2[left - 1] + MOD) % MOD;
+    return ((long long)result * P[n - left + 1]) % MOD;
+}
+
+long long binsearch(long long n){
+    long long rightEnd = n - 1, result = 0;
+    for (long long i = 1; i < n; i++) {
+        long long leftStart = 0, rightStart = min(i, rightEnd);
+        while (leftStart < rightStart) {
+            long long mid = (leftStart + rightStart) / 2;
+            if (calHash1(i - mid, i + mid, n) == CalHash2(rightEnd - mid, rightEnd + mid, n))
+                leftStart = mid + 1;
+            else
+                rightStart = mid;
+        }
+        result += leftStart;
+        rightEnd--;
+    }
+    return result;
 }
 
 int main() {
-    int n, res = 0;
-    cin >> n;
-    cin >> s;
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
 
-    int k = 0;
-    for (int i = 1; i < n; i++) {
-        if ((int)s[i] != (int)s[k]) {
-            res++;
-            int a = k - 1, b = i + 1;
-            while (czyOdwrotnosc(a, b) && a >= 0 && b < n) {
-                res++;
-                a--;
-                b++;
-            }
-        }
-        k++;
-    }
-    cout << res;
-    return 0;
+    long long n;
+    string s1, s2;
+    cin >> n >> s1;
+    s2 = s1;
+    reverse(s2.begin(), s2.end());
+    s1 = ' ' + s1;
+    s2 = ' ' + s2;
+    for (long long i = 1; i <= n; i++)
+        s2[i] = (s2[i] == '1') ? '0' : '1';
+
+    createHash(n, s1, s2);
+    cout << binsearch(n);
 }
