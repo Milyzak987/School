@@ -1,73 +1,79 @@
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
 #include <iostream>
+#include <algorithm>
 #include <vector>
+#include <iomanip>
+#include <cmath>
 using namespace std;
 
-vector<int> graph[2007];
-vector<bool> visited(2007);
-vector<pair<int, int>> v(2007);
-int n, s;
+struct Edge {
+    double distance;
+    int v1, v2;
+};
+const int MAXN = 2007;
+vector<pair<int, int>> coordinates(MAXN);
+vector<int> representative(MAXN);
+vector<Edge> edges;
 
-bool comp(const pair<long long, long long> &a, const pair<long long, long long> &b) {
-    return (a.second < b.second);
+bool compareEdges(Edge e1, Edge e2) {
+    return e1.distance > e2.distance;
 }
 
-void dfs(int x) {
-    visited[x] = 1;
-    for (auto u : graph[x]) {
-        if (!visited[u]) dfs(u);
+int Find(int v) {
+    if (v == representative[v]) return v;
+    representative[v] = Find(representative[v]);
+    return representative[v];
+}
+
+void Union(int v1, int v2) {
+    int x = Find(v1);
+    int y = Find(v2);
+    if (x == y) return;
+    representative[x] = representative[y];
+}
+
+void readInput(int& n) {
+    cin >> n;
+    for (int i = 1; i <= n; ++i) {
+        double x, y;
+        cin >> x >> y;
+        representative[i] = i;
+        coordinates[i] = {x, y};
     }
+    representative[0] = 0;
+    coordinates[0] = {0, 0};
 }
 
-bool solve(int s) {
-    double mindis = 1e9;
-    for(auto u : v){
-        for(auto x : v){
-            if(u == x) continue;
-            double dis = sqrt(pow(abs(u.first - x.first), 2) + pow(abs(u.second - x.second), 2));
-            mindis = min(mindis, dis);
+void calculateDistances(int n) {
+    for (int i = 0; i <= n; ++i) {
+        for (int j = 0; j <= n; ++j) {
+            if (i == j) continue;
+            double xDiff = abs(coordinates[i].first - coordinates[j].first);
+            double yDiff = abs(coordinates[i].second - coordinates[j].second);
+            edges.push_back({sqrt(xDiff * xDiff + yDiff * yDiff), i, j});
         }
     }
 }
 
-double binsearch() {
-    double l = 1, r = 1415000000, eps = 0.00001;
-    double mid;
-
-    while (r - l > eps) {
-        mid = (l + r) / 2;
-        if (solve(mid))
-            r = mid;
-        else
-            l = mid;
+void findMaximumDistance() {
+    sort(edges.begin(), edges.end(), compareEdges);
+    double result = 0;
+    while (!edges.empty()) {
+        auto [distance, v1, v2] = edges.back();
+        edges.pop_back();
+        if (Find(v1) != Find(v2)) {
+            result = max(result, distance);
+            Union(v1, v2);
+        }
     }
-    return mid;
-}
-
-double easy() { 
-    sort(v.begin(), v.begin() + n, comp);
-    int maxx = 0;
-    for (int i = 1; i < n; i++) {
-        maxx = max(maxx, v[i].second - v[i - 1].second);
-    }
-    return (double)maxx;
+    cout << fixed << setprecision(5) << result << "\n";
 }
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    bool ez = true;
-    cin >> n;
-    v[0] = {0, 0};
-    for (int i = 1; i <= n; i++) {
-        cin >> v[i].first >> v[i].second;
-        if (v[i].first != 0) ez = false;
-    }
-    if (ez) { //just in case to have some points (maybe?)
-        cout << fixed << setprecision(5) << easy() << "\n";
-    } else {
-        cout << fixed << setprecision(5) << binsearch() << "\n";
-    }
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int n;
+    readInput(n);
+    calculateDistances(n);
+    findMaximumDistance();
 }
