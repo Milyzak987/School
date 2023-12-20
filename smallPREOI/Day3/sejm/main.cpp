@@ -1,5 +1,5 @@
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 #include "sejlib.h"
 using namespace std;
@@ -10,10 +10,7 @@ int main() {
     vector<pair<int, int>> pos = {};
     int n = init();
 
-    num2 = wywiad(2, 1);
-    pos.push_back({num2, 2});
-
-    for (int i = 3; i <= n; ++i) {
+    for (int i = 2; i <= n; ++i) {
         pos.push_back({wywiad(i, 1), i});
     }
     sort(pos.begin(), pos.end());
@@ -30,24 +27,18 @@ int main() {
         }
     }
 
-    if (wywiad(1, n) == wywiad(2, n)) {
-        if (num2 == good)
-            pos1.push_back(1);
-        else
-            pos2.push_back(1);
-    } else {
-        if (num2 == good)
-            pos2.push_back(1);
-        else
-            pos1.push_back(1);
-    }
-
     for (auto u : pos) {
         if (u.first == good) {
             pos1.push_back(u.second);
         } else {
             pos2.push_back(u.second);
         }
+    }
+
+    if (wywiad(1, n) == wywiad(pos1[0], n)) {
+        pos1.push_back(1);
+    } else {
+        pos2.push_back(1);
     }
 
     if (pos1.size() < pos2.size()) {
