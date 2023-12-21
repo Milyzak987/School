@@ -9,31 +9,25 @@ using namespace std;
 
 typedef pair<int, int> pii;
 
-vector<vector<pii>> graph;
+vector<vector<int>> graph;
 
-int dijkstra(int source, int destination) {
+int bfs(int source, int destination) {
     vector<int> distance(graph.size(), INF);
-    priority_queue<pii, vector<pii>, greater<pii>> pq;
+    queue<int> q;
 
     distance[source] = 0;
-    pq.push({0, source});
+    q.push(source);
 
-    while (!pq.empty()) {
-        int u = pq.top().second;
-        int dist_u = pq.top().first;
-        pq.pop();
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
 
         if (u == destination) return distance[u];
 
-        if (dist_u > distance[u]) continue;
-
-        for (auto& neighbor : graph[u]) {
-            int v = neighbor.first;
-            int weight = neighbor.second;
-
-            if (distance[u] + weight < distance[v]) {
-                distance[v] = distance[u] + weight;
-                pq.push({distance[v], v});
+        for (int v : graph[u]) {
+            if (distance[v] == INF) {
+                distance[v] = distance[u] + 1;
+                q.push(v);
             }
         }
     }
@@ -44,22 +38,22 @@ int dijkstra(int source, int destination) {
 int main() {
     int nodes, edges;
     cin >> nodes >> edges;
-    
+
     graph.resize(nodes);
 
     for (int i = 0; i < edges; ++i) {
-        int u, v, weight;
-        cin >> u >> v >> weight;
+        int u, v;
+        cin >> u >> v;
 
         // Undirected graph
-        graph[u].push_back({v, weight});
-        graph[v].push_back({u, weight});
+        graph[u].push_back(v);
+        graph[v].push_back(u);
     }
 
     int source, destination;
     cin >> source >> destination;
 
-    int shortestPath = dijkstra(source, destination);
+    int shortestPath = bfs(source, destination);
 
     if (shortestPath == -1)
         cout << "-1\n";
