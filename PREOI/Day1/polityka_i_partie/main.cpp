@@ -6,17 +6,17 @@ using namespace std;
 
 const int MAXN = 3 * 1e5 + 7;
 vector<int> graph[MAXN];
+vector<bool> visited(MAXN);
 vector<int> parent(MAXN);
 vector<int> sizes(MAXN, 1);
 vector<int> goodness(MAXN, 0);
 
-void dfs(int x, vector<bool> visited) {
+void dfs(int x) {
     visited[x] = true;
-    goodness[x] = goodness[x] ? 0 : 1;
+    goodness[x] ^= 1;
     for (auto u : graph[x]) {
         if (!visited[u]) {
-            goodness[u] = goodness[u] ? 0 : 1;
-            dfs(u, visited);
+            dfs(u);
         }
     }
 }
@@ -25,9 +25,7 @@ int find(int i) {
     if (parent[i] == i) {
         return i;
     } else {
-        int res = find(parent[i]);
-        parent[i] = res;
-        return res;
+        return find(parent[i]);
     }
 }
 
@@ -39,15 +37,15 @@ void unisame(int i, int j) {
     int jsize = sizes[jrep];
     if (isize < jsize) {
         if (goodness[i] != goodness[j]) {
-            vector<bool> visited(MAXN, false);
-            dfs(i, visited);
+            fill(visited.begin(), visited.end(), false);
+            dfs(i);
         }
         parent[irep] = jrep;
         sizes[jrep] += sizes[irep];
     } else {
         if (goodness[i] != goodness[j]) {
-            vector<bool> visited(MAXN, false);
-            dfs(j, visited);
+            fill(visited.begin(), visited.end(), false);
+            dfs(j);
         }
         parent[jrep] = irep;
         sizes[irep] += sizes[jrep];
@@ -62,15 +60,15 @@ void unidif(int i, int j) {
     int jsize = sizes[jrep];
     if (isize < jsize) {
         if (goodness[i] == goodness[j]) {
-            vector<bool> visited(MAXN, false);
-            dfs(i, visited);
+            fill(visited.begin(), visited.end(), false);
+            dfs(i);
         }
         parent[irep] = jrep;
         sizes[jrep] += sizes[irep];
     } else {
         if (goodness[i] == goodness[j]) {
-            vector<bool> visited(MAXN, false);
-            dfs(j, visited);
+            fill(visited.begin(), visited.end(), false);
+            dfs(j);
         }
         parent[jrep] = irep;
         sizes[irep] += sizes[jrep];
