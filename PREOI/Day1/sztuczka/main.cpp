@@ -6,6 +6,7 @@ using namespace std;
 
 const int MAXN = 1e5 + 7;
 vector<long long> pos(MAXN);
+vector<long long> pos_old(MAXN);
 vector<int> moves(MAXN);
 
 int main() {
@@ -17,7 +18,7 @@ int main() {
     for (int i = 1; i <= n; i++) {
         cin >> pos[i];
     }
-
+    pos_old = pos;
     int q;
     long long m;
     cin >> q >> m;
@@ -26,23 +27,19 @@ int main() {
     }
     for (int j = 0; j < m; j++) {
         for (int i = 0; i < q; i++) {
-            int a, a1, a2;
+            int a;
             a = moves[i];
-            if (pos[a - 1] < pos[a]) {
-                int ldis = abs(pos[a - 1] - pos[a]);
-                a1 = pos[a - 1] - ldis;
-            } else {
-                int ldis = abs(pos[a] - pos[a - 1]);
-                a1 = pos[a - 1] + ldis;
+            pos[a] = pos[a - 1] + pos[a + 1] - pos[a];
+        }
+        if (pos == pos_old) {
+            for (int k = 0; k < (m % (j+1)); k++) {
+                for (int i = 0; i < q; i++) {
+                    int a;
+                    a = moves[i];
+                    pos[a] = pos[a - 1] + pos[a + 1] - pos[a];
+                }
             }
-            if (pos[a + 1] > pos[a]) {
-                int rdis = abs(pos[a] - pos[a + 1]);
-                a2 = pos[a + 1] + rdis;
-            } else {
-                int rdis = abs(pos[a + 1] - pos[a]);
-                a2 = pos[a + 1] - rdis;
-            }
-            pos[a] = (a1 + a2) / 2;
+            break;
         }
     }
     for (int i = 1; i <= n; i++) {

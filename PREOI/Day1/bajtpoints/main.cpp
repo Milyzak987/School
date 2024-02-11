@@ -2,51 +2,66 @@
 #include <vector>
 
 using namespace std;
+
+const long long MOD = 1e9 + 7;
 vector<vector<char>> grid(507, vector<char>(507));
-vector<vector<int>> grid2(507, vector<int>(507));
-
-int countWays(int a, int b, int k, vector<vector<char>>& grid, int x, int y) {
-    if (x < 0 || x >= a || y < 0 || y >= b || grid[x][y] == '#') {
-        return 0;
-    }
-
-    if (k == 0) {
-        return (x == 0 && y == 0) ? 1 : 0;
-    }
-
-    int ways = 0;
-
-    ways += countWays(a, b, k - 1, grid, x + 1, y);
-    ways += countWays(a, b, k - 1, grid, x - 1, y);
-    ways += countWays(a, b, k - 1, grid, x, y + 1);
-    ways += countWays(a, b, k - 1, grid, x, y - 1);
-
-    return ways;
-}
+vector<vector<long long>> dp(507, vector<long long>(507, 0));
+vector<vector<long long>> pref(507, vector<long long>(507, 0));
 
 int main() {
-    int a, b, k, j;
-    cin >> a >> b >> k >> j;
-    for (int i = 0; i < a; i++) {
-        for (int j = 0; j < b; j++) {
+    long long a, b, k, z;
+    cin >> a >> b >> k >> z;
+    for (long long i = 0; i < a; i++) {
+        for (long long j = 0; j < b; j++) {
             cin >> grid[i][j];
+            if (grid[i][j] == 'S') dp[i][j] = 1;
         }
     }
-    for (int i = 0; i < a; i++) {
-        for (int j = 0; j < b; j++) {
-            if (grid[i][j] == '#') {
-                grid2[i][j] = -1;
-            } else {
-                grid2[i][j] = countWays(a, b, k, grid, i, j);
+
+    long long x = 0, temp = 0;
+    while (x != k) {
+        for (long long i = 0; i < a; i++) {
+            pref[i][0] = 0;
+            for (long long j = 0; j < b; j++) {
+                pref[i][j + 1] = pref[i][j] + dp[i][j];
             }
         }
+        for (long long i = 0; i < a; i++) {
+            for (long long j = 0; j < b; j++) {
+                if (grid[i][j] != '#') {
+                    for (long long l = 0; l <= (2 * z); l++) {
+                        long long n = i - z + l;
+                        long long e, f;
+                        if (l < z) {
+                            e = j - l;
+                            f = j + l;
+                        } else {
+                            e = j - (2 * z - l);
+                            f = j + (2 * z - l);
+                        }
+                        if (n < 0 || n >= a) continue;
+                        if (e < 0) e = 0;
+                        if (e >= b) e = b - 1;
+                        if (f < 0) f = 0;
+                        if (f >= b) f = b - 1;
+                        temp = (temp + pref[n][f + 1] - pref[n][e]) % MOD;
+                    }
+                    dp[i][j] = temp;
+                    temp = 0;
+                }
+            }
+        }
+        x++;
     }
-    for (int i = 0; i < a; i++) {
-        for (int j = 0; j < b; j++) {
-            cout << grid2[i][j];
+
+    for (long long i = 0; i < a; i++) {
+        for (long long j = 0; j < b; j++) {
+            if (grid[i][j] == '#')
+                cout << -1 << " ";
+            else
+                cout << dp[i][j] << " ";
         }
         cout << "\n";
     }
-
     return 0;
 }
