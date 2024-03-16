@@ -1,36 +1,57 @@
-#include <algorithm>
 #include <iostream>
+#include <queue>
 #include <vector>
 using namespace std;
 
-const int MAXN = 1e5 + 7;
-vector<int> power_plants(MAXN);
-vector<vector<pair<int, int>>> graph(MAXN, vector<pair<int, int>>(0));
+const int MAXN = 1e6 + 7;
+vector<vector<pair<int, int>>> graph(MAXN);
+vector<vector<int>> in(MAXN);
+vector<long double> dp(MAXN);
+vector<int> level(MAXN);
+queue<int> q;
 
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     int e, d, k;
     cin >> e >> d >> k;
-    for (int i = 1; i <= e; i++) {
-        cin >> power_plants[i];
+    for (int i = 0; i < e; i++) {
+        int z;
+        cin >> z;
     }
-    for (int i = 0; i < k; i++) {
+
+    for (int i = 1; i <= k; i++) {
         int a, b, c;
         cin >> a >> b >> c;
         graph[a].push_back({b, c});
-        graph[b].push_back({a, c});
+        in[b].push_back(a);
+        level[a]++;
     }
-    if (d == 1) {
-        int mini, minx = 1e9 + 7; 
-        for (int i = 1; i <= e; i++) {
-            if (graph[i][0].second < minx) {
-                minx = graph[i][0].second;
-                mini = i;
+
+    int x = e + d;
+    dp[x] = 1;
+    q.push(x);
+    while (!q.empty()) {
+        int v = q.front();
+        q.pop();
+        for (auto u : graph[v]) {
+            dp[v] += (dp[u.first] / u.second);
+        }
+        for (int u : in[v]) {
+            level[u]--;
+            if (level[u] <= 0) {
+                q.push(u);
             }
         }
-        cout << mini;
-    } else {
-        cout << "-";
     }
+
+    int res = 0;
+    long double maxx = -1;
+    for (int i = 1; i <= e; i++) {
+        if (dp[i] > maxx) {
+            maxx = dp[i];
+            res = i;
+        }
+    }
+    cout << res;
 }
