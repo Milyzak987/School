@@ -1,5 +1,5 @@
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -19,17 +19,17 @@ int main() {
     }
     asc[0] = 1;
     for (int i = 1; i < n; i++) {
-        if(num[i] > num[i-1]){
-            asc[i] = asc[i-1] + 1;
-        } else{
+        if (num[i] > num[i - 1]) {
+            asc[i] = asc[i - 1] + 1;
+        } else {
             asc[i] = 1;
         }
     }
-    desc[n-1] = 1;
-    for (int i = n-2; i >= 0; i--) {
-        if(num[i] > num[i+1]){
-            desc[i] = desc[i+1] + 1;
-        } else{
+    desc[n - 1] = 1;
+    for (int i = n - 2; i >= 0; i--) {
+        if (num[i] > num[i + 1]) {
+            desc[i] = desc[i + 1] + 1;
+        } else {
             desc[i] = 1;
         }
     }
@@ -37,6 +37,6 @@ int main() {
         mer[i] = desc[i] + asc[i];
     }
     int res;
-    res = *max_element (mer, mer + n);
+    res = *max_element(mer, mer + n);
     cout << res - 1;
 }
