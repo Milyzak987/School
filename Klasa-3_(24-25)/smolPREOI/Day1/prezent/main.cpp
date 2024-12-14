@@ -2,11 +2,11 @@
 using namespace std;
 typedef long long ll;
 
-const int MOD = 998244353;
+const ll MOD = 998244353;
 
 void solve(ll a, ll b) {
     ll p = a;
-    int maxres = 1;
+    ll maxres = 1;
     while (p * 2 <= b) {
         maxres++;
         p *= 2;
@@ -14,12 +14,13 @@ void solve(ll a, ll b) {
 
     ll difres = 0;
     p /= a;
-    while (a * p <= b) {
-        difres = (difres + 1) % MOD;
-        if (a * p / 2 * 3 <= b) {
-            difres = (difres + maxres - 1) % MOD;
-        }
-        a++;
+
+    difres = ((b / p) - a + 1) % MOD;
+    ll q = max(p / 2, 1ll);
+    if (a * 3 * q <= b) {
+        ll x = (b / (3 * q)) - a + 1;
+        x = (x * (maxres - 1)) % MOD;
+        difres = (difres + x) % MOD;
     }
     cout << maxres << " " << difres << "\n";
 }
