@@ -52,7 +52,7 @@ int gasienica(int n, int x) {
     return wyn;
 }
 
-int DFS(int v) {
+void DFS(int v) {
     visited[v] = true;
     for (int u : graph1[v]) {
         if (!visited[u]) DFS(u);
