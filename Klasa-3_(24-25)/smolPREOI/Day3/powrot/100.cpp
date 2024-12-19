@@ -1,25 +1,26 @@
 #include <iostream>
+#include <queue>
 #include <set>
 #include <unordered_map>
 #include <vector>
 using namespace std;
+
 typedef long long ll;
-typedef pair<ll, ll> pll;
 
 const ll MAXN = 2e5 + 7;
-pll coords[MAXN];
-vector<ll> graph[MAXN];
-ll num[MAXN];
-bool visited[MAXN];
-set<int> unique;
-unordered_map<int, int> vmap;
 
-void dfs(ll v, ll x) {
+vector<ll> graph[MAXN];
+bool visited[MAXN];
+ll component[MAXN];
+vector<pair<ll, ll>> coords(MAXN);
+unordered_map<ll, vector<ll>> mapX, mapY;
+
+void dfs(ll v, ll comp_id) {
     visited[v] = true;
+    component[v] = comp_id;
     for (ll u : graph[v]) {
         if (!visited[u]) {
-            num[u] = x;
-            dfs(u, x);
+            dfs(u, comp_id);
         }
     }
 }
@@ -32,41 +33,46 @@ int main() {
     cin >> n >> t;
 
     for (ll i = 1; i <= n; i++) {
-        ll a, b;
-        cin >> a >> b;
-        coords[i] = {a, b};
-        unique.insert(a);
-        unique.insert(b);
+        ll x, y;
+        cin >> x >> y;
+        coords[i] = {x, y};
+        mapX[x].push_back(i);
+        mapY[y].push_back(i);
     }
 
-    int idx = 0;
-    for (int v : unique) {
-        vmap[v] = idx++;
+    for (const auto &entry : mapX) {
+        const vector<ll> &stations = entry.second;
+        for (size_t i = 1; i < stations.size(); i++) {
+            graph[stations[i - 1]].push_back(stations[i]);
+            graph[stations[i]].push_back(stations[i - 1]);
+        }
     }
 
-    for (const auto x : coords) {
-        int u = vmap[x.first];
-        int v = vmap[x.second];
-        graph[u].push_back(v);
-        graph[v].push_back(u);
+    for (const auto &entry : mapY) {
+        const vector<ll> &stations = entry.second;
+        for (size_t i = 1; i < stations.size(); i++) {
+            graph[stations[i - 1]].push_back(stations[i]);
+            graph[stations[i]].push_back(stations[i - 1]);
+        }
     }
 
-    ll x = 0;
+    ll comp_id = 0;
     for (ll i = 1; i <= n; i++) {
         if (!visited[i]) {
-            x++;
-            num[i] = x;
-            dfs(i, x);
+            comp_id++;
+            dfs(i, comp_id);
         }
     }
 
     while (t--) {
         ll a, b;
         cin >> a >> b;
-        if (num[a] == num[b]) {
+        if (component[a] == component[b]) {
             cout << "TAK\n";
         } else {
             cout << "NIE\n";
         }
     }
+
+    return 0;
 }
