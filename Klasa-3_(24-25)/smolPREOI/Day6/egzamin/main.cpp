@@ -1,59 +1,42 @@
 #include <iostream>
-#include <unordered_map>
+#include <map>
 #include <vector>
 using namespace std;
 
 const int MAXN = 2e5 + 7;
-vector<unordered_map<int, int>> tree(4 * MAXN);
+const int R = 1 << 18;
+vector<map<int, int>> tree(R * 2);
 vector<int> arr(MAXN);
 
-void segTree(int v, int start, int end) {
-    if (start == end) {
-        tree[v][arr[start]]++;
-    } else {
-        int mid = (start + end) / 2;
-        segTree(2 * v, start, mid);
-        segTree(2 * v + 1, mid + 1, end);
-        for (const auto &[key, value] : tree[2 * v]) {
-            tree[v][key] += value;
-        }
-        for (const auto &[key, value] : tree[2 * v + 1]) {
-            tree[v][key] += value;
-        }
+void update(int v, int x) {
+    int oldVal = arr[v];
+    arr[v] = x;
+    v += R;
+    while (v > 0) {
+        tree[v][oldVal]--;
+        tree[v][x]++;
+        v /= 2;
     }
 }
 
-void update(int v, int start, int end, int idx, int oldX, int newX) {
-    if (start == end) {
-        tree[v][oldX]--;
-        if (tree[v][oldX] == 0)
-            tree[v].erase(oldX);
-        tree[v][newX]++;
-    } else {
-        int mid = (start + end) / 2;
-        if (idx <= mid) {
-            update(2 * v, start, mid, idx, oldX, newX);
-        } else {
-            update(2 * v + 1, mid + 1, end, idx, oldX, newX);
-        }
-        tree[v].clear();
-        for (const auto &[key, value] : tree[2 * v]) {
-            tree[v][key] += value;
-        }
-        for (const auto &[key, value] : tree[2 * v + 1]) {
-            tree[v][key] += value;
+int query(int l, int r, int x) {
+    l += R;
+    r += R;
+    long long res = tree[l][x];
+    if (l != r) {
+        res += tree[r][x];
+    }
+    while (l / 2 != r / 2) {
+        {
+            if (l % 2 == 0)
+                res += tree[l + 1][x];
+            if (r % 2 == 1)
+                res += tree[r - 1][x];
+            l /= 2;
+            r /= 2;
         }
     }
-}
-
-int check(int v, int start, int end, int L, int R, int x) {
-    if (R < start || end < L)
-        return 0;
-    if (L <= start && end <= R) {
-        return tree[v].count(x) ? tree[v][x] : 0;
-    }
-    int mid = (start + end) / 2;
-    return check(2 * v, start, mid, L, R, x) + check(2 * v + 1, mid + 1, end, L, R, x);
+    return res;
 }
 
 int main() {
@@ -63,11 +46,11 @@ int main() {
     int n, q;
     cin >> n >> q;
 
-    for (int i = 0; i < n; i++) {
-        cin >> arr[i];
+    for (int i = 1; i <= n; i++) {
+        int x;
+        cin >> x;
+        update(i, x);
     }
-
-    segTree(1, 0, n - 1);
 
     while (q--) {
         char c;
@@ -75,12 +58,11 @@ int main() {
         if (c == '?') {
             int l, r, x;
             cin >> l >> r >> x;
-            cout << check(1, 0, n - 1, l - 1, r - 1, x) << "\n";
+            cout << query(l, r, x) << "\n";
         } else {
-            int idx, x;
-            cin >> idx >> x;
-            update(1, 0, n - 1, idx - 1, arr[idx - 1], x);
-            arr[idx - 1] = x;
+            int a, x;
+            cin >> a >> x;
+            update(a, x);
         }
     }
 
