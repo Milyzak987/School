@@ -1,91 +1,62 @@
-#include <algorithm>
 #include <iostream>
-#include <queue>
 #include <vector>
 using namespace std;
+typedef long long ll;
 
-const int MAXN = 2e5 + 7;
-vector<int> graph[MAXN];
-int dist[MAXN];
+const ll MAXN = 2e5 + 1;
+vector<ll> graph[MAXN];
+vector<bool> visited(MAXN);
+vector<bool> con(MAXN);
+ll n, k, count;
 
-void bfs(int n) {
-    vector<bool> visited(n + 1, false);
-    queue<int> q;
-    q.push(1);
-    visited[1] = true;
-    dist[1] = 0;
-
-    while (!q.empty()) {
-        int v = q.front();
-        q.pop();
-        for (int u : graph[v]) {
-            if (!visited[u]) {
-                visited[u] = true;
-                dist[u] = dist[v] + 1;
-                q.push(u);
-            }
+ll dfs(ll v, ll t) {
+    visited[v] = true;
+    ll x = 0;
+    for (auto u : graph[v]) {
+        if (!visited[u]) {
+            x = max(x, dfs(u, t));
         }
     }
+    if (x + 1 >= t && !con[v]) {
+        count++;
+        x = -1;
+    }
+    return x + 1;
 }
 
-bool canAchieve(int D, int n, int k) {
-    vector<int> leaves;
-    for (int i = 1; i <= n; i++) {
-        if (dist[i] > D) {
-            leaves.push_back(i);
-        }
-    }
-
-    int mods = 0;
-    for (int i = 0; i < leaves.size() && mods < k; i++) {
-        int x = leaves[i];
-        // Dodajemy krawędź do wierzchołka 1
-        graph[1].push_back(x);
-        graph[x].push_back(1);
-        dist[x] = 1;  // Odległość do 1 to teraz 1
-
-        // Zaktualizuj BFS tylko dla wierzchołka 1
-        bfs(n);
-        mods++;
-    }
-
-    // Sprawdzenie, czy udało się osiągnąć odległość <= D
-    for (int i = 1; i <= n; i++) {
-        if (dist[i] > D) {
-            return false;
-        }
-    }
-    return true;
+bool canAchive(ll t) {
+    count = 0;
+    visited.assign(n + 1, false);
+    dfs(1, t);
+    return count <= k;
 }
 
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
 
-    int n, k;
     cin >> n >> k;
-
-    for (int i = 0; i < n - 1; i++) {
-        int u, v;
-        cin >> u >> v;
-        graph[u].push_back(v);
-        graph[v].push_back(u);
+    for (ll i = 0; i < n - 1; i++) {
+        ll a, b;
+        cin >> a >> b;
+        graph[a].push_back(b);
+        graph[b].push_back(a);
+        if (a == 1 || b == 1) {
+            con[a] = true;
+            con[b] = true;
+        }
     }
 
-    // Początkowe obliczenie odległości
-    bfs(n);
-
-    int left = 0, right = n, result = n;
+    ll left = 1, right = n - 1, res = 0;
     while (left <= right) {
-        int mid = (left + right) / 2;
-        if (canAchieve(mid, n, k)) {
-            result = mid;
+        ll mid = (left + right) / 2;
+        if (canAchive(mid)) {
+            res = mid;
             right = mid - 1;
         } else {
             left = mid + 1;
         }
     }
 
-    cout << result << "\n";
-    return 0;
+    cout << res;
 }
