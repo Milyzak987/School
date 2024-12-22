@@ -1,29 +1,31 @@
 #include <iostream>
+#include <algorithm>
 using namespace std;
+typedef long long ll;
 
-const int MAXN = 1e5 + 7;
-int added[MAXN];
-int stealA[MAXN];
-int stealB[MAXN];
+const ll MAXN = 1e5 + 7;
+ll added[MAXN];
+ll stealA[MAXN];
+ll stealB[MAXN];
 
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
 
-    int n, A, B;
+    ll n, A, B;
     cin >> n;
-    for (int i = 0; i < n; i++) {
+    for (ll i = 0; i < n; i++) {
         cin >> added[i];
     }
-    for (int i = 0; i < n; i++) {
+    for (ll i = 0; i < n; i++) {
         cin >> stealA[i];
     }
-    for (int i = 0; i < n; i++) {
+    for (ll i = 0; i < n; i++) {
         cin >> stealB[i];
     }
     cin >> A >> B;
 
-    for(int i = 0; i < n; i++){
+    for(ll i = 0; i < n; i++){
         A += added[i];
         B += added[i];
 
