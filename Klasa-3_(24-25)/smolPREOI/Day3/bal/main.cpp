@@ -1,13 +1,37 @@
+#include <algorithm>
+#include <climits>
 #include <iostream>
 #include <vector>
-#include <queue>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pll;
+typedef pair<ll, ll> Pair;
 
-const ll MAXN = 2e5 + 7;
-bool parametry[MAXN][20];
-ll ceny[MAXN];
+const ll MAXN = 1 << 21;
+vector<Pair> dp(MAXN, {LLONG_MAX, -1});
+
+void computeDP(int k) {
+    ll R = 1 << k;
+    for (ll i = R; i >= 0; i--) {
+        for (ll j = 0; j < k; j++) {
+            dp[i] = min(dp[i], dp[i | (1 << j)]);
+        }
+    }
+}
+
+void query() {
+    ll t, dress = 0;
+    cin >> t;
+    for (ll j = 0; j < t; j++) {
+        ll x;
+        cin >> x;
+        dress |= 1 << (x - 1);
+    }
+    if (dp[dress].second == -1) {
+        cout << "NIE\n";
+    } else {
+        cout << dp[dress].second << "\n";
+    }
+}
 
 int main() {
     ios_base::sync_with_stdio(0);
@@ -17,55 +41,21 @@ int main() {
     cin >> n >> k >> q;
 
     for (ll i = 1; i <= n; i++) {
-        ll t;
-        cin >> ceny[i] >> t;
+        ll cost, t, dress = 0;
+        cin >> cost >> t;
         for (ll j = 0; j < t; j++) {
             ll x;
             cin >> x;
-            parametry[i][x] = true;
+            dress |= 1 << (x - 1);
+        }
+        if (cost < dp[dress].first) {
+            dp[dress] = {cost, i};
         }
     }
 
-    // for(ll i = 1; i <= n; i++){
-    //     for(ll j = 1; j < 5; j++){
-    //         cout << parametry[i][j] << " ";
-    //     }
-    //     cout << "\n";
-    // }
+    computeDP(k);
 
     while (q--) {
-        ll t;
-        cin >> t;
-        ll minx = 1e9 + 7, mini = -1;
-        deque<ll> klientka;
-        for (ll i = 0; i < t; i++) {
-            ll x;
-            cin >> x;
-            klientka.push_back(x);
-        }
-        bool works = true;
-        for (ll i = 1; i <= n; i++) {
-            for(auto v : klientka){
-                // cout << v << " ";
-                if(!parametry[i][v]){
-                    works = false;
-                }
-            }
-            // cout << '\n';
-            if(works){
-                // cout << "WORKS\n";
-                if(ceny[i] < minx){
-                    minx = ceny[i];
-                    mini = i;
-                }
-            }
-            works = true;
-        }
-        if(mini == -1){
-            cout << "NIE\n";
-        } else {
-            cout << mini << "\n";
-        }
+        query();
     }
-
 }
