@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <climits>
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -7,7 +6,8 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> Pair;
 
-const int MAXN = 2e5 + 7;
+const ll INF = 1e18 + 7;
+const ll MAXN = 2e5 + 7;
 vector<Pair> graph[MAXN];
 ll dist[MAXN][2];
 ll distS[MAXN];
@@ -36,19 +36,19 @@ int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
 
-    int n, m, s, t, c, k;
+    ll n, m, s, t, c, k;
     cin >> n >> m >> s >> t >> c >> k;
 
-    for (int i = 0; i < m; i++) {
-        int a, b, w;
+    for (ll i = 0; i < m; i++) {
+        ll a, b, w;
         cin >> a >> b >> w;
         graph[a].push_back({b, w});
         graph[b].push_back({a, w});
     }
 
-    for (int i = 1; i <= n; i++) {
-        dist[i][0] = LLONG_MAX;
-        dist[i][1] = LLONG_MAX;
+    for (ll i = 1; i <= n; i++) {
+        dist[i][0] = INF;
+        dist[i][1] = INF;
     }
 
     dijkstra(s, 0);
@@ -67,7 +67,7 @@ int main() {
         return 0;
     }
 
-    for (int i = 1; i <= n; i++) {
+    for (ll i = 1; i <= n; i++) {
         distS[i] = dist[i][0];
         distT[i] = dist[i][1];
     }
@@ -76,7 +76,7 @@ int main() {
     sort(distT + 1, distT + 1 + n);
 
     ll res = 0, j = n;
-    for (int i = 1; i <= n; i++) {
+    for (ll i = 1; i <= n; i++) {
         while (j > 0 && distS[i] + distT[j] > k - c) {
             j--;
         }
