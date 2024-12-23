@@ -1,30 +1,32 @@
+#include <algorithm>
+#include <climits>
 #include <iostream>
-#include <vector>
 #include <queue>
+#include <vector>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pll;
+typedef pair<ll, ll> Pair;
 
 const int MAXN = 2e5 + 7;
-const int INF = 1e9;
-vector<pll> graph[MAXN];
-vector<pll> graph2[MAXN];
-int dist[MAXN];
+vector<Pair> graph[MAXN];
+ll dist[MAXN][2];
+ll distS[MAXN];
+ll distT[MAXN];
 
-
-void dijkstra(int s) {
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-    dist[s] = 0;
+void dijkstra(ll s, ll j) {
+    priority_queue<Pair, vector<Pair>, greater<Pair>> pq;
+    dist[s][j] = 0;
     pq.push({0, s});
+
     while (!pq.empty()) {
-        int v = pq.top().second;
+        ll v = pq.top().second;
         pq.pop();
-        for (auto p : graph2[v]) {
-            int u = p.first;
-            int w = p.second;
-            if (dist[u] > dist[v] + w) {
-                dist[u] = dist[v] + w;
-                pq.push({dist[u], u});
+        for (auto p : graph[v]) {
+            ll u = p.first;
+            ll w = p.second;
+            if (dist[u][j] > dist[v][j] + w) {
+                dist[u][j] = dist[v][j] + w;
+                pq.push({dist[u][j], u});
             }
         }
     }
@@ -35,8 +37,7 @@ int main() {
     cin.tie(0);
 
     int n, m, s, t, c, k;
-    cin >> n >> m;
-    cin >> s >> t >> c >> k;
+    cin >> n >> m >> s >> t >> c >> k;
 
     for (int i = 0; i < m; i++) {
         int a, b, w;
@@ -45,22 +46,43 @@ int main() {
         graph[b].push_back({a, w});
     }
 
-    int res = 0;
-    for(int i = 0; i < n; i++){
-        for(int j = i+1; j < n; j++){
-            if(i != j){
-                graph[i].push_back({j, c});
-                graph[j].push_back({i, c});
-                for(int k = 0; k < MAXN; k++){
-                    dist[i] = INF;
-                }
-                dijkstra(s);
-                if(dist[t] <= k){
-                    res++;
-                }
-            }
+    for (int i = 1; i <= n; i++) {
+        dist[i][0] = LLONG_MAX;
+        dist[i][1] = LLONG_MAX;
+    }
+
+    dijkstra(s, 0);
+    dijkstra(t, 1);
+
+    if (dist[t][0] <= k) {
+        cout << (n * (n - 1)) / 2;
+        return 0;
+    }
+    if (c == k) {
+        cout << 1;
+        return 0;
+    }
+    if (c > k) {
+        cout << 0;
+        return 0;
+    }
+
+    for (int i = 1; i <= n; i++) {
+        distS[i] = dist[i][0];
+        distT[i] = dist[i][1];
+    }
+
+    sort(distS + 1, distS + 1 + n);
+    sort(distT + 1, distT + 1 + n);
+
+    ll res = 0, j = n;
+    for (int i = 1; i <= n; i++) {
+        while (j > 0 && distS[i] + distT[j] > k - c) {
+            j--;
         }
+        res += j;
     }
 
     cout << res;
+    return 0;
 }
