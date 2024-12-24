@@ -1,67 +1,66 @@
 #include <iostream>
 #include <vector>
-#include <climits>
-
 using namespace std;
+typedef unsigned long long ull;
+typedef pair<ull, ull> Pair;
 
-pair<long long, int> minimalCostForDimension(const vector<int>& weights, int length) {
-    vector<long long> prefixSum(length + 1, 0), weightedSum(length + 1, 0);
+const int MAXN = 2007;
+ull c[MAXN][MAXN];
+vector<ull> row(MAXN);
+vector<ull> col(MAXN);
+vector<ull> rowWeights(MAXN);
+vector<ull> colWeights(MAXN);
 
-    for (int i = 1; i <= length; ++i) {
-        prefixSum[i] = prefixSum[i - 1] + weights[i - 1];
-        weightedSum[i] = weightedSum[i - 1] + weights[i - 1] * i;
-    }
-
-    long long minCost = LLONG_MAX;
-    int bestPosition = 0;
-
-    for (int pos = 0; pos <= length; ++pos) {
-        long long leftSum = prefixSum[pos] * pos - weightedSum[pos];
-        long long rightSum = (weightedSum[length] - weightedSum[pos]) - (prefixSum[length] - prefixSum[pos]) * pos;
-        long long cost = leftSum + rightSum;
-
-        if (cost < minCost) {
-            minCost = cost;
-            bestPosition = pos;
+void calWeights(ull limit, vector<ull>& values, vector<ull>& weights) {
+    for (ull x = 0; x <= limit; x++) {
+        ull curr = 0;
+        
+        ull odle = 2;
+        for (ull i = x; i >= 1; i--) {
+            curr += odle * odle * values[i];
+            odle += 4;
         }
-    }
 
-    return {minCost, bestPosition};
+        odle = 2;
+        for (ull i = x + 1; i <= limit; i++) {
+            curr += odle * odle * values[i];
+            odle += 4;
+        }
+
+        weights[x] = curr;
+    }
 }
 
 int main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
 
-    int n, m;
-    cin >> n >> m;
-
-    vector<vector<int>> c(n, vector<int>(m));
-
-    for (int i = 0; i < n; ++i)
-        for (int j = 0; j < m; ++j)
-            cin >> c[i][j];
-
-    vector<int> rowWeights(n, 0);
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            rowWeights[i] += c[i][j];
-        }
-    }
-
-    vector<int> colWeights(m, 0);
-    for (int j = 0; j < m; ++j) {
-        for (int i = 0; i < n; ++i) {
-            colWeights[j] += c[i][j];
-        }
-    }
-
-    auto [rowCost, bestRow] = minimalCostForDimension(rowWeights, n);
-
-    auto [colCost, bestCol] = minimalCostForDimension(colWeights, m);
-
-    cout << rowCost + colCost << endl;
-    cout << bestRow << " " << bestCol << endl;
-
-    return 0;
+	ull n, m;
+	cin >> n >> m;
+	
+	for (ull y = 1; y <= n; y++) {
+		for (ull x = 1; x <= m; x++) {
+			cin >> c[x][y];
+			row[y] += c[x][y];
+			col[x] += c[x][y];
+		}
+	}
+	
+    calWeights(m, col, colWeights);
+    calWeights(n, row, rowWeights);
+	
+	ull res = colWeights[0] + rowWeights[0];
+    Pair best = {0, 0};
+	for (ull i = 0; i <= n; i++) {
+		for (ull j = 0; j <= m; j++) {
+			ull curr = colWeights[j] + rowWeights[i];
+			if (curr < res) {
+				res = curr;
+                best = {i, j};
+			}
+		}
+	}
+	cout << res << "\n" << best.first << " " << best.second;
+	
+	return 0;
 }
