@@ -10,14 +10,14 @@ void update(int l, int r, int x) {
     r += R;
     tree[l] += x;
     if(l != r){
-        tree[r] += x + r - l;
+        tree[r] += x;
     }
     while (l/2 != r/2) {
-        if (l % 2 == 0) {
+        if (l) {
             tree[l + 1] += x;
         }
-        if (r % 2 == 1) {
-            tree[r - 1] += x + 1;
+        if (r & 1) {
+            tree[r - 1] += x;
         }
         l /= 2;
         r /= 2;
@@ -25,7 +25,6 @@ void update(int l, int r, int x) {
 }
 
 int query(int v) {
-    v += R;
     int res = 0;
     while (v > 0) {
         res += tree[v];
@@ -51,6 +50,6 @@ int main() {
 
     for (int i = 1; i <= 50; i++) {
         // cout << query(i) << "\n";
-        cout << query(i) << "\n";
+        cout << tree[R + i] << "\n";
     }
 }
