@@ -4,23 +4,21 @@
 
 using namespace std;
 
-const int MAXN = 1000005; // Maksymalna liczba atrakcji turystycznych
+const int MAXN = 1000005;
 
-vector<int> adj[MAXN]; // Lista sąsiedztwa reprezentująca graf
-vector<pair<int, int>> queries; // Zapytania o dodanie na ścieżce
-vector<long long> cost[MAXN]; // Koszty biletów dla każdej linii autobusowej
-vector<long long> result; // Wyniki dla każdej krawędzi
+vector<int> adj[MAXN];
+vector<pair<int, int>> queries;
+vector<long long> cost[MAXN];
+vector<long long> result;
 
-int parent[MAXN][MAXN]; // Tablica przechowująca rodziców w drzewie
-int depth[MAXN]; // Tablica przechowująca głębokość wierzchołków w drzewie
-long long dist[MAXN]; // Tablica przechowująca sumaryczne koszty dla każdego wierzchołka
+int parent[MAXN][MAXN];
+int depth[MAXN];
+long long dist[MAXN];
 
-// Implementacja algorytmu LCA (Najniższego Wspólnego Przodka)
 int lca(int a, int b) {
     if (depth[a] < depth[b])
         swap(a, b);
     
-    // Wyrównywanie głębokości
     for (int i = 20; i >= 0; --i) {
         if (depth[a] - (1 << i) >= depth[b]) {
             a = parent[a][i];
@@ -29,7 +27,6 @@ int lca(int a, int b) {
 
     if (a == b) return a;
 
-    // Wyszukiwanie najniższego wspólnego przodka
     for (int i = 20; i >= 0; --i) {
         if (parent[a][i] != parent[b][i]) {
             a = parent[a][i];
@@ -40,12 +37,10 @@ int lca(int a, int b) {
     return parent[a][0];
 }
 
-// DFS do przetworzenia zapytań
 void dfs(int v, int p) {
     parent[v][0] = p;
     depth[v] = depth[p] + 1;
 
-    // Przetwarzanie zapytań
     for (int u : adj[v]) {
         if (u != p) {
             dfs(u, v);
@@ -53,7 +48,6 @@ void dfs(int v, int p) {
         }
     }
 
-    // Dodawanie na ścieżce
     for (auto& q : queries) {
         int a = q.first;
         int b = q.second;
@@ -70,7 +64,6 @@ int main() {
     int n;
     cin >> n;
 
-    // Inicjalizacja struktur danych
     for (int i = 1; i <= n; ++i) {
         adj[i].clear();
         cost[i].clear();
@@ -79,7 +72,6 @@ int main() {
         dist[i] = 0;
     }
 
-    // Wczytywanie danych
     for (int i = 1; i < n; ++i) {
         int a, b, c, d;
         cin >> a >> b >> c >> d;
@@ -91,7 +83,6 @@ int main() {
         cost[i].push_back(d);
     }
 
-    // Wczytywanie zapytań
     int m;
     cin >> m;
 
@@ -101,17 +92,14 @@ int main() {
         queries.push_back({a, b});
     }
 
-    // Przetwarzanie zapytań
     dfs(1, 0);
 
-    // Obliczanie wyników
     for (int i = 1; i < n; ++i) {
         int common = lca(i, i + 1);
         result.push_back(min(cost[i][0] * dist[i] + cost[i][1] * dist[i + 1],
                              cost[i][1] * dist[i] + cost[i][0] * dist[i + 1]));
     }
 
-    // Wypisywanie wyników
     long long answer = 0;
     for (long long res : result) {
         answer += res;
