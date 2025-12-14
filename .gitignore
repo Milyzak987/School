@@ -1,6 +1,8 @@
 *.exe
 *.in
 *.out
+*.debug
+*.strict
 .vscode/
 pomoce/
 materialy-do-OI/
