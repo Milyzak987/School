@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef long double ld;
 typedef pair<int, int> pii;
 
 const int MAXT = 1e6 + 7;
@@ -11,6 +10,23 @@ vector<pii> treeMinMax(2 * R, {0, INT_MAX});
 vector<int> treePrev(2 * R, 0);
 set<int> positions[MAXT];
 int S[MAXN];
+
+int getPredecessor(int val, int idx) {
+    auto it = positions[val].lower_bound(idx);
+
+    if (it == positions[val].begin()) return 0;
+
+    it--;
+    return *it;
+}
+
+int getSuccessor(int val, int idx) {
+    auto it = positions[val].upper_bound(idx);
+
+    if (it == positions[val].end()) return 0;
+
+    return *it;
+}
 
 void updateMinMax(int i, int x) {
     i += R;
@@ -30,10 +46,14 @@ pii queryMinMax(int a, int b) {
     a += R - 1;
     b += R + 1;
     while (a / 2 != b / 2) {
-        if (a % 2 == 0) resMax = max(resMax, treeMinMax[a + 1].first);
-        if (b % 2 == 1) resMax = max(resMax, treeMinMax[b - 1].first);
-        if (a % 2 == 0) resMin = min(resMin, treeMinMax[a + 1].second);
-        if (b % 2 == 1) resMin = min(resMin, treeMinMax[b - 1].second);
+        if (a % 2 == 0) {
+            resMax = max(resMax, treeMinMax[a + 1].first);
+            resMin = min(resMin, treeMinMax[a + 1].second);
+        }
+        if (b % 2 == 1) {
+            resMax = max(resMax, treeMinMax[b - 1].first);
+            resMin = min(resMin, treeMinMax[b - 1].second);
+        }
         a /= 2;
         b /= 2;
     }
@@ -85,27 +105,24 @@ int main() {
     }
 
     while (q--) {
-        int k;
-        cin >> k;
+        int type;
+        cin >> type;
 
-        if (k == 1) {
+        if (type == 1) {
             int l, r;
             cin >> l >> r;
 
-            int max_prev = queryPrev(l, r);
-            if (max_prev >= l) {
+            if (queryPrev(l, r) >= l) {
                 cout << "NIE\n";
                 continue;
             }
 
             pii mm = queryMinMax(l, r);
-
             if ((mm.first - mm.second) == (r - l)) {
                 cout << "TAK\n";
             } else {
                 cout << "NIE\n";
             }
-
         } else {
             int p, v;
             cin >> p >> v;
@@ -113,29 +130,25 @@ int main() {
 
             if (old_v == v) continue;
 
-            auto it = positions[old_v].find(p);
-            int prev_idx = 0;
-            if (it != positions[old_v].begin()) prev_idx = *prev(it);
+            int old_pre = getPredecessor(old_v, p);
+            int old_suc = getSuccessor(old_v, p);
 
-            auto next_it = next(it);
-            if (next_it != positions[old_v].end()) {
-                updatePrev(*next_it, prev_idx);
+            if (old_suc != 0) {
+                updatePrev(old_suc, old_pre);
             }
+            positions[old_v].erase(p);
 
-            positions[old_v].erase(it);
             updatePrev(p, 0);
 
             positions[v].insert(p);
-            auto it2 = positions[v].find(p);
 
-            int prev_idx2 = 0;
-            if (it2 != positions[v].begin()) prev_idx = *prev(it2);
+            int new_pre = getPredecessor(v, p);
+            int new_suc = getSuccessor(v, p);
 
-            updatePrev(p, prev_idx2);
+            updatePrev(p, new_pre);
 
-            auto next_it2 = next(it2);
-            if (next_it2 != positions[v].end()) {
-                updatePrev(*next_it2, p);
+            if (new_suc != 0) {
+                updatePrev(new_suc, p);
             }
 
             S[p] = v;
