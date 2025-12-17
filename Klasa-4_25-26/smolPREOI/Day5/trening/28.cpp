@@ -7,21 +7,23 @@ typedef pair<int, int> pii;
 const int MAXN = 1e5 + 7;
 vector<int> graph[MAXN];
 vector<int> disabled(MAXN);
+vector<bool> isDisabled(MAXN, false);
+vector<int> dist(MAXN, -1);
 
 void subtask1(int n, int q) {
     for (int k = 0; k < q; ++k) {
         int t, x;
         cin >> t >> x;
 
-        vector<int> disabled(x);
         for (int i = 0; i < x; ++i) {
             cin >> disabled[i];
         }
 
-        sort(disabled.begin(), disabled.end());
+        sort(disabled.begin(), disabled.begin() + x);
 
         int fur = 1;
-        for (int block : disabled) {
+        for (int i = 0; i < x; ++i) {
+            int block = disabled[i];
             if (block == fur) {
                 fur++;
             } else if (block > fur) {
@@ -38,13 +40,6 @@ void subtask1(int n, int q) {
 }
 
 void subtask23(int n, int start_node) {
-    vector<bool> isDisabled(n + 1, false);
-    for (int c : disabled) {
-        isDisabled[c] = true;
-    }
-
-    vector<int> dist(n + 1, -1);
-
     dist[start_node] = 0;
 
     for (int u = n; u >= 1; --u) {
@@ -84,12 +79,18 @@ int main() {
         graph[v].push_back(u);
     }
 
-    while (q--) {
+    if (q == 1) {
         int t, x;
         cin >> t >> x;
-        for (int i = 0; i < x; ++i) cin >> disabled[i];
+        int a;
+        for (int i = 0; i < x; ++i) {
+            cin >> a;
+            isDisabled[a] = true;
+        }
 
         subtask23(n, t);
+    } else {
+        subtask1(n, q);
     }
 
     return 0;
